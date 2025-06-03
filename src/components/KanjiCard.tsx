@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { type KanjiCardProps } from '../types/Kanji';
+import { type Kanji } from '../types/Kanji';
 
 
-export const KanjiCard = ({ id, kanji, onAccept, onReject }: KanjiCardProps  ) => {
+export const KanjiCard = ({character, meaning, kunyomi, onyomi, onAccept, onReject }: Kanji  ) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -12,7 +12,6 @@ export const KanjiCard = ({ id, kanji, onAccept, onReject }: KanjiCardProps  ) =
 
   return (
     <div 
-      id={id}
       className={`relative h-64 w-48 cursor-pointer transition-all duration-300 ${isHovered ? 'scale-110' : 'scale-100'}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -34,9 +33,9 @@ export const KanjiCard = ({ id, kanji, onAccept, onReject }: KanjiCardProps  ) =
         <div className={`absolute h-full w-full p-4 flex flex-col items-center justify-center 
                         ${ isFlipped ? 'hidden' : '' }`}
               style={{ backgroundColor: '#fff8ce', backfaceVisibility: 'hidden' }}>
-          <div className="text-8xl mb-4 ">{kanji.character}</div>
+          <div className="text-8xl mb-4 ">{character}</div>
           <div className="absolute -bottom-8 left-0 right-0 flex justify-center gap-4 z-10">
-            <button className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center shadow-md hover:bg-green-600 transition-colors"
+            <button className="w-8 h-8 bg-green-500 texcharacter"
                 onClick={(e) => {
                 e.stopPropagation();
                 onAccept();
@@ -56,15 +55,15 @@ export const KanjiCard = ({ id, kanji, onAccept, onReject }: KanjiCardProps  ) =
         <div className={`absolute h-full w-full p-4 flex flex-col items-center justify-center 
                         ${ isFlipped ? '' : 'hidden' }`}
              style={{ backgroundColor: '#fff8ce', transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}>
-          <div className="text-2xl font-bold mb-2">{kanji.meaning}</div>
-          {kanji.kunyomi && (
+          <div className="text-2xl font-bold mb-2">{meaning}</div>
+          {kunyomi && (
             <div className="mb-2">
-              <span className="font-semibold">Kun:</span> {kanji.kunyomi.join(', ')}
+              <span className="font-semibold">Kun:</span> {kunyomi.join(', ')}
             </div>
           )}
-          {kanji.onyomi && (
+          {onyomi && (
             <div>
-              <span className="font-semibold">On:</span> {kanji.onyomi.join(', ')}
+              <span className="font-semibold">On:</span> {onyomi.join(', ')}
             </div>
           )}
           <div className="absolute -bottom-8 left-0 right-0 flex justify-center gap-4 z-10">
@@ -83,7 +82,6 @@ export const KanjiCard = ({ id, kanji, onAccept, onReject }: KanjiCardProps  ) =
           >✕</button>
         </div>
         </div>
-        
       </div>
     </div>
   );

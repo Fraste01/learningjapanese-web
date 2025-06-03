@@ -1,11 +1,28 @@
-import { useState } from "react";
-import { initialDictionary } from "../data/examples";
+import { useEffect, useState } from "react";
 import type { DictionaryProps } from "../types/Dictionary";
+import { fetchDictionary } from "../services/api";
 
 export const DictionaryGrid = () => {
-    const [dictionary] = useState([...initialDictionary]);
+    const [dictionary, setDictionary] = useState<DictionaryProps[]>([]);
     const [dictionaryFiltered, setDictionaryFiltered] = useState<DictionaryProps[]>();
     const [selectedDictionary, setSelectedDictionary] = useState<DictionaryProps>();
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      const loadDictionaryGrid = async () => {
+        try {
+          const dictionaryFetch = await fetchDictionary();
+          setDictionary(dictionaryFetch);
+        } catch (err) {
+          //setError(err.message || 'Failed to load kanji deck');
+          console.log(err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadDictionaryGrid();
+    }, [])
 
     const getDistinctTypes = () => {
         return [...new Map(dictionary.map(item => [item["type"], item])).values()];
@@ -17,6 +34,10 @@ export const DictionaryGrid = () => {
     const setWordSelected = (selected: DictionaryProps) => {
       if (!selected) return;
       setSelectedDictionary(selected);
+    }
+
+    if (loading) {
+      return <div>Loading...</div>;
     }
 
     return <div className="grid grid-flow-col grid-rows-1 gap-4">
@@ -41,7 +62,7 @@ export const DictionaryGrid = () => {
                 (
                     <div className="grid grid-flow-row grid-rows-1 gap-4 width-full">
                         {dictionaryFiltered!.map((dictionaryElement) => (
-                          <div key={dictionaryElement.id} className="grid-rows-1 gap-4 width-full p-4 hover:bg-gray-800 cursor-pointer " onClick={() => setWordSelected(dictionaryElement)}>
+                          <div className="grid-rows-1 gap-4 width-full p-4 hover:bg-gray-800 cursor-pointer " onClick={() => setWordSelected(dictionaryElement)}>
                             {dictionaryElement.name} <button className="float-right">→</button>
                           </div>  
                         ))}
@@ -52,7 +73,7 @@ export const DictionaryGrid = () => {
                 {!selectedDictionary && (
                     <p>Select a word</p>
                 ) || (selectedDictionary != null && selectedDictionary != undefined &&(
-                    <div key={selectedDictionary.id} className="grid grid-flow-row grid-rows-1 gap-4 width-full">
+                    <div className="grid grid-flow-row grid-rows-1 gap-4 width-full">
                         <h1>Word: {selectedDictionary.name}</h1>
                         Meaning: {selectedDictionary.meaning}
                         <br/>

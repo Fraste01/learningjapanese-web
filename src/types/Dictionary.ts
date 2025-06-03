@@ -1,5 +1,4 @@
 export type DictionaryProps = {
-    id: number;
     type: string;
     name: string; //In romanji
     meaning: string;

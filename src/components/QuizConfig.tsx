@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
 import { type QuizConfigProps } from "../types/Quiz";
-import { initialDictionary, initialGrammar, initialKanji } from "../data/examples";
 
 export const QuizConfig = ({ onConfigConfirmed }: QuizConfigProps) => {
     const [config] = useState<QuizConfigProps>();
     //TODO: Configure the quiz like the dictionary/kanji/grammar to use by the difficulty, how many question to make
     //      the level of JLPT (N5, N4, N3, N2, N1) and other configurations.
     //TODO: After approving the config I need to start the quiz
-    const [argumentsKanji] = useState([...initialKanji]);
-    const [argumentsDictionary] = useState([...initialDictionary]);
-    const [argumentsGrammar] = useState([...initialGrammar]);
+    const [argumentsKanji] = useState([]);
+    const [argumentsDictionary] = useState([]);
+    const [argumentsGrammar] = useState([]);
     const [argumentsSelected, setArgumentsSelected] = useState<string[]>([]);
 
     const [selectedKanji, setSelectedKanji] = useState<string[]>([]);
@@ -80,7 +79,11 @@ export const QuizConfig = ({ onConfigConfirmed }: QuizConfigProps) => {
                 <input type="number" placeholder="number of questions" className="border border-gray-300 text-gray-50 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" value={config?.numberOfQuestions} />
             </div>
             
-            <button onClick={onConfigConfirmed}>Confirm Config</button>
+            <button onClick={(e) => {
+              e.stopPropagation();
+              console.log('Config Confirmed');
+              onConfigConfirmed();
+            }}>Confirm Config</button>
         </div>
     );
 };

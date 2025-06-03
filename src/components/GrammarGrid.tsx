@@ -1,12 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { GrammarProps } from "../types/Grammar";
-import { initialGrammar } from "../data/examples";
+import { fetchGrammar } from "../services/api";
 
 export const GrammarGrid = () => {
   const [grammar,setGrammarSelected] = useState<GrammarProps>();
   const [types, setTypeSelected] = useState<GrammarProps[]>();
-  const [grammars] = useState([...initialGrammar]);
-  //TODO: Use setGrammars when I have the API for the call to get the data.
+  const [grammars,setGrammars] = useState<GrammarProps[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    const loadGrammarGrid = async () => {
+      try {
+        const grammarFetch = await fetchGrammar();
+        setGrammars(grammarFetch);
+      } catch (err) {
+        //setError(err.message || 'Failed to load kanji deck');
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadGrammarGrid();
+  },[])
 
   const setSelectionGrammar = (selected: string) => {
     if (!selected) return;
@@ -19,8 +35,7 @@ export const GrammarGrid = () => {
 
   const setSelectionType = (grammarSelected: GrammarProps) => {
     if (!types) return;
-    const filtered = grammars.filter((grammar) => grammar.id === grammarSelected
-.id);
+    const filtered = grammars.filter((grammar) => grammar == grammarSelected);
     if (filtered.length > 0) {
       setGrammarSelected(filtered[0]);
     }
@@ -30,6 +45,9 @@ export const GrammarGrid = () => {
     return [...new Map(grammars.map(item => [item["type"], item])).values()];
   }
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   //TODO: Move to the class
   const onAccept = () => {
@@ -40,13 +58,11 @@ export const GrammarGrid = () => {
     //TODO: do something
   }
 
-  //return <div>Grammar Content Here</div>;
   //The application will have a schema of multicolumns: 1st column: will be the type of grammar like "conjugation of verbs", 
   //second columns after selecting the argoment will be the various type of conjugations like "て form" and in the last column after the selected conjugation will be the explanation and examples
   //the user can also "accept" or "disable" and it will be registered for the quiz to be built and shown.
   //TODO: Add also a filter on top of the grid so the user can select various type of grammars based on level (N5, N4, N3, N2, N1) and other factors.
   //TODO: Add a search bar to filter the grammar and types or other things like て form, ます form etc.
-
   return <div className="grid grid-flow-col grid-rows-1 gap-4">
           <div className="w-1/4" >
             <h1 className="text-3xl font-bold mb-6">Grammar</h1>
@@ -55,7 +71,7 @@ export const GrammarGrid = () => {
             (
               <div className="grid grid-flow-row grid-rows-1 gap-4 width-full">
                 {getDistinctGrammars().map((grammar) => (
-                  <div key={grammar.id} className="grid-rows-1 gap-4 width-full p-4 hover:bg-gray-800 cursor-pointer " onClick={() => setSelectionGrammar(grammar.type)}>
+                  <div className="grid-rows-1 gap-4 width-full p-4 hover:bg-gray-800 cursor-pointer " onClick={() => setSelectionGrammar(grammar.type)}>
                     {grammar.type} <button className="float-right" onClick={() => setSelectionGrammar(grammar.type)}>→</button>
                   </div>
                 ))}
@@ -70,7 +86,7 @@ export const GrammarGrid = () => {
               ) || (
                 <div className="grid grid-flow-row grid-rows-1 gap-4 width-full">
                   {types!.map((grammar) => (
-                    <div key={grammar.id} className="grid-rows-1 gap-4 width-full p-4 hover:bg-gray-800 cursor-pointer " onClick={() => setSelectionType(grammar)}>
+                    <div className="grid-rows-1 gap-4 width-full p-4 hover:bg-gray-800 cursor-pointer " onClick={() => setSelectionType(grammar)}>
                       {grammar.name} <button className="float-right" onClick={() => setSelectionType(grammar)}>→</button>
                     </div>
                   ))}

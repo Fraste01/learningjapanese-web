@@ -1,14 +1,34 @@
 import { useState, useRef, useEffect } from 'react';
 import { KanjiCard } from './KanjiCard';
-import { initialKanjiDeck } from '../data/examples';
-import { onAcceptKanjiCard } from '../types/Kanji';
+import { onAcceptKanjiCard, type Kanji } from '../types/Kanji';
+import { fetchKanjiDeck } from '../services/api';
 
 export const KanjiDeck = () => {
-  const [deck, setDeck] = useState([...initialKanjiDeck]);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [acceptedCards, setAcceptedCards] = useState<any[]>([]);
+  const [deck, setDeck] = useState<Kanji[]>([]);
+  const [acceptedCards, setAcceptedCards] = useState<Kanji[]>([]);
   const [isDealing, setIsDealing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const acceptedPileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    console.log("Use Effect triggered");
+    const loadKanjiDeck = async () => {
+      try {
+        const deck = await fetchKanjiDeck();
+        setDeck(deck);
+      } catch (err) {
+        //setError(err.message || 'Failed to load kanji deck');
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadKanjiDeck();
+  }, []);
+
+
+
 
   const handleAccept = (index: number) => {
     const acceptedCard = deck[index];
@@ -37,6 +57,10 @@ export const KanjiDeck = () => {
       acceptedPileRef.current.scrollTop = acceptedPileRef.current.scrollHeight;
     }
   }, [acceptedCards]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flex flex-col items-center w-full px-4">
@@ -86,7 +110,7 @@ export const KanjiDeck = () => {
                         opacity: 1 - (i * 0.2)
                       }}
                     >
-                      <div className="text-6xl mb-2">{card.kanji.character}</div>
+                      <div className="text-6xl mb-2">{card.character}</div>
                     </div>
                   </div>
                 );
@@ -104,29 +128,38 @@ export const KanjiDeck = () => {
             style={{border: '2px dashed #C7C000',}}>
                 <div className="h-64 w-48 flex items-center justify-center rounded-lg">
                 Deck empty!
-              </div>
-            </div>) : (
-              /* Deck Visualization */
-              <div className="relative">
-              <div className="absolute -top-4 -left-4">
-                {deck.slice(1).map((_, i) => (
+              </div>kanji
+              </div>)
+            :
+            <div>
+              {/* Render deck cards */}
+              {deck.slice(1).map((_, i) => (
                   <div 
-                    key={`deck-${i}`}
+                    key={`deck-${i+1}`}
                     className="absolute h-64 w-48 rounded-lg"
-                    style={{ backgroundColor: '#fff8ce', top: `${i * 2}px`, left: `${i * 2}px`, zIndex: -i - 1, opacity: 0.7 - (i * 0.1), transform: `rotate(${i * 1}deg)`, transition: 'all 0.3s ease'
+                    style={{ 
+                      backgroundColor: '#fff8ce', 
+                      top: `${(i+1) * 2}px`, 
+                      left: `${(i+1) * 2}px`, 
+                      zIndex: -(i+1) - 1, 
+                      opacity: 0.7 - ((i+1) * 0.1), 
+                      transform: `rotate(${(i+1) * 1}deg)`, 
+                      transition: 'all 0.3s ease'
                     }}
                   />
                 ))}
+                
                 {/* Active Card */}
-                <KanjiCard 
-                    id="current-card"
-                    kanji={deck[0].kanji} 
-                    onAccept={() => handleAccept(0)}
-                    onReject={() => handleReject(0)}
+                <KanjiCard
+                  onAccept={() => handleAccept(0)}
+                  onReject={() => handleReject(0)} 
+                  character={deck[0].character} 
+                  meaning={deck[0].meaning}
+                  kunyomi={deck[0].kunyomi}
+                  onyomi={deck[0].onyomi}
+                  jlpt={deck[0].jlpt}
                 />
-              </div>
-              </div>
-            )
+            </div>
           }
           </div>
         </div>

@@ -1,23 +1,19 @@
-export type KanjiCardProps = {
-  id?: string;
-  kanji: Kanji;
-  accepted?: boolean;
-  onAccept: () => void;
-  onReject: () => void;
-};
-
 export type Kanji = {
   character: string;
   meaning: string;
   kunyomi?: string[];
   onyomi?: string[];
+  jlpt?: number;
+  accepted?: boolean;
+  onAccept: () => void;
+  onReject: () => void;
 };
 
-export const onAcceptKanjiCard = (kanjicard: KanjiCardProps) => {
+export const onAcceptKanjiCard = (kanjicard: Kanji) => {
   kanjicard.accepted = true;
 }
 
-export const onRejectKanjiCard = (kanjicard: KanjiCardProps) => {
+export const onRejectKanjiCard = (kanjicard: Kanji) => {
   kanjicard.accepted = false;
 }
 
