@@ -4,6 +4,7 @@ This application is a small project made by 3 parts:
  - Web
  - Backend
  - Database
+
 In the future I will add an Flutter application.
 
 I'm making this application mainly to learn japanese, but also for me to learn and consolidate the use of Python with Flesk, React and MongoDB.
